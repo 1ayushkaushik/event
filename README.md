@@ -1,5 +1,5 @@
-To run:-
+# To run:-
 1.)Clone the reop
-2.)run "npm install"
-3.)run "npm run dev"
+2.)run `npm install`
+3.)run `npm run dev`
 
