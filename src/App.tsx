@@ -14,6 +14,7 @@ import GuestView from './components/Dashboard/GuestView';
 import TaskView from './components/Dashboard/TaskView';
 import VendorView from './components/Dashboard/VendorView';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
+import BudgetView from './components/Dashboard/BudgetView';
 
 // Sample data for demonstration
 const sampleEvents: Event[] = [
@@ -194,7 +195,7 @@ function App() {
       case 'vendors':
         return <VendorView />;
       case 'budget':
-        return <div className="p-6">Budget tracking view coming soon...</div>;
+        return <BudgetView/>;
       case 'assets':
         return <AssetView />;
       default:
