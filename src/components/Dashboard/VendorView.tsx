@@ -1,260 +1,167 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useEventStore } from '../../store/eventStore';
-import VendorCards from './VendorCards';
-import { Vendor } from '../../types';
+import VendorList from './VendorList';
+import VendorForm from './VendorForm';
+import VendorDetails from './VendorDetails';
 
 const VendorView: React.FC = () => {
-  const { currentEvent, addVendor, deleteVendor, updateVendor } = useEventStore();
+  const { currentEvent, addVendor } = useEventStore();
 
-  const [form, setForm] = useState({
-    name: '',
-    category: '',
-    contact: '',
-    email: '',
-    rating: 5,
-    services: '',
-    totalCost: '',
-  });
+  const [selectedVendorId, setSelectedVendorId] = useState<string | null>(null);
+  const [showVendorForm, setShowVendorForm] = useState(false);
+  const [showVendorDetails, setShowVendorDetails] = useState(false);
 
   if (!currentEvent) {
-    return <div className="p-6 text-gray-600">No event selected.</div>;
+    return <div className="p-4 bg-white rounded-lg shadow-md">No event selected</div>;
   }
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+
+  // Inside VendorView component
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImportButtonClick = () => {
+    fileInputRef.current?.click(); // open the file dialog
   };
-
-  const handleAddVendor = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!form.name || !form.category) return;
-
-    const newVendor: Vendor = {
-      id: Date.now().toString(),
-      name: form.name,
-      category: form.category,
-      contact: form.contact,
-      email: form.email,
-      rating: Number(form.rating),
-      services: form.services
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean),
-      contracts: [],
-      totalCost: Number(form.totalCost) || 0,
-    };
-
-    addVendor(currentEvent.id, newVendor);
-
-    // Reset the form
-    setForm({
-      name: '',
-      category: '',
-      contact: '',
-      email: '',
-      rating: 5,
-      services: '',
-      totalCost: '',
-    });
-  };
-
-  const handleDeleteVendor = (vendorId: string) => {
-    deleteVendor(currentEvent.id, vendorId);
-  };
-
-  const handleUpdateVendor = (updatedVendor: Vendor) => {
-    if (!currentEvent) return;
-
-    updateVendor(currentEvent.id, updatedVendor.id, updatedVendor);
-  };
-
 
 
   const handleExportVendors = () => {
-    if (!currentEvent) {
-      alert('No event selected for export.');
-      return;
-    }
+    if (!currentEvent) return;
 
-    if (currentEvent.vendors.length === 0) {
-      alert('No vendors to export.');
-      return;
-    }
+    const vendorData = JSON.stringify(currentEvent.vendors, null, 2);
 
-    const dataStr = JSON.stringify(currentEvent.vendors, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
+    const blob = new Blob([vendorData], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
 
     const link = document.createElement('a');
     link.href = url;
     link.download = `${currentEvent.title.replace(/\s+/g, '_')}_vendors.json`;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
 
     URL.revokeObjectURL(url);
   };
 
-  const handleImportVendors = () => {
-    if (!currentEvent) {
-      alert('No event selected for import.');
-      return;
-    }
 
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'application/json';
+  const handleImportVendors = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !currentEvent) return;
 
-    input.onchange = async (e: any) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
+    const reader = new FileReader();
+    reader.onload = (e) => {
       try {
-        const text = await file.text();
-        const importedVendors: Partial<Vendor>[] = JSON.parse(text);
+        const vendors = JSON.parse(e.target?.result as string);
+        if (!Array.isArray(vendors)) throw new Error('Invalid file format');
 
-        importedVendors.forEach((vendor) => {
-          const newVendor: Vendor = {
-            id: vendor.id || `${Date.now()}-${Math.floor(Math.random() * 10000)}`,
-            name: vendor.name || 'Unnamed Vendor',
-            category: vendor.category || 'Uncategorized',
-            contact: vendor.contact || '',
-            email: vendor.email || '',
-            rating: Number(vendor.rating) || 0,
-            services: vendor.services || [],
-            contracts: vendor.contracts || [],
-            totalCost: Number(vendor.totalCost) || 0,
-          };
-
-          addVendor(currentEvent.id, newVendor);
+        vendors.forEach((vendor) => {
+          addVendor(currentEvent.id, vendor);
         });
-      } catch (err) {
-        console.error('Error importing vendors:', err);
-        alert('Invalid file format.');
+        // alert('Vendors imported successfully!');
+      } catch (error) {
+        console.error('Error importing vendors:', error);
+        alert('Invalid JSON file');
       }
     };
+    reader.readAsText(file);
 
-    input.click();
+    // Reset file input so that the same file can be re-uploaded if needed
+    event.target.value = '';
   };
 
 
+  const handleAddVendorClick = () => {
+    setSelectedVendorId(null);
+    setShowVendorForm(true);
+    setShowVendorDetails(false);
+  };
+
+  const handleVendorCardClick = (vendorId: string) => {
+    setSelectedVendorId(vendorId);
+    setShowVendorDetails(true);
+    setShowVendorForm(false);
+  };
+
+  const handleEditClick = (vendorId: string) => {
+    setSelectedVendorId(vendorId);
+    setShowVendorForm(true);
+    setShowVendorDetails(false);
+  };
+
+  const handleComplete = () => {
+    if (selectedVendorId) {
+      // If there was a selectedVendorId, go back to details view
+      setShowVendorForm(false);
+      setShowVendorDetails(true);
+    } else {
+      // If you were adding a new vendor, go back to the list
+      setSelectedVendorId(null);
+      setShowVendorForm(false);
+      setShowVendorDetails(false);
+    }
+  };
+
+  const handleBackToList = () => {
+    setSelectedVendorId(null);
+    setShowVendorForm(false);
+    setShowVendorDetails(false);
+  };
+
+
+
   return (
-    <div className="p-6 space-y-8">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-gray-800">
-          Vendors for {currentEvent.title}
-        </h2>
+    <div className="p-6 bg-gray-50 rounded-lg  space-y-6">
 
-        <div className="flex gap-2">
-          <button
-            onClick={handleImportVendors} className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm shadow">
-            Import Vendors
-          </button>
-
-          <button
-            onClick={handleExportVendors}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm shadow"
-          >
-            Export Vendors
-          </button>
-        </div>
-
-      </div>
-
-
-      <form
-        onSubmit={handleAddVendor}
-        className="mb-6 bg-gray-50 p-4 rounded-lg shadow flex flex-wrap gap-3 items-end"
-      >
-        <input
-          name="name"
-          value={form.name}
-          onChange={handleChange}
-          placeholder="Vendor Name"
-          className="border rounded-md p-2 text-sm flex-1 min-w-[150px] focus:outline-none focus:ring-1 focus:ring-blue-400"
+      {showVendorForm ? (
+        <VendorForm vendorId={selectedVendorId} onComplete={handleComplete} />
+      ) : showVendorDetails ? (
+        <VendorDetails
+          vendorId={selectedVendorId!}
+          onEdit={handleEditClick}
+          onComplete={handleBackToList}
         />
-        <input
-          name="category"
-          value={form.category}
-          onChange={handleChange}
-          placeholder="Category"
-          className="border rounded-md p-2 text-sm flex-1 min-w-[120px] focus:outline-none focus:ring-1 focus:ring-blue-400"
-        />
-        <input
-          name="contact"
-          value={form.contact}
-          onChange={handleChange}
-          placeholder="Contact Number"
-          className="border rounded-md p-2 text-sm flex-1 min-w-[120px] focus:outline-none focus:ring-1 focus:ring-blue-400"
-        />
-        <input
-          name="email"
-          value={form.email}
-          onChange={handleChange}
-          placeholder="Email"
-          className="border rounded-md p-2 text-sm flex-1 min-w-[150px] focus:outline-none focus:ring-1 focus:ring-blue-400"
-        />
-        <input
-          name="services"
-          value={form.services}
-          onChange={handleChange}
-          placeholder="Services (comma separated)"
-          className="border rounded-md p-2 text-sm flex-1 min-w-[150px] focus:outline-none focus:ring-1 focus:ring-blue-400"
-        />
-        <input
-          name="totalCost"
-          value={form.totalCost}
-          onChange={handleChange}
-          placeholder="Total Cost"
-          type="number"
-          className="border rounded-md p-2 text-sm flex-1 min-w-[100px] focus:outline-none focus:ring-1 focus:ring-blue-400"
-        />
+      ) : (
+        <>
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-gray-800">Vendors for {currentEvent.title}</h1>
 
-        <div className="flex flex-col min-w-[80px]">
-          <label className="text-xs font-medium text-gray-600 mb-1">Rating</label>
-          <select
-            name="rating"
-            value={form.rating}
-            onChange={handleChange}
-            className="border rounded-md p-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
-          >
-            {[1, 2, 3, 4, 5].map((r) => (
-              <option key={r} value={r}>
-                {r} Star{r > 1 ? 's' : ''}
-              </option>
-            ))}
-          </select>
-        </div>
+            <div className="flex space-x-3">
+              <div className="flex space-x-3">
+                <button
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                  onClick={handleAddVendorClick}
+                >
+                  Add Vendor
+                </button>
 
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm shadow hover:bg-blue-700 transition"
-        >
-          Add Vendor
-        </button>
-      </form>
+                <button
+                  className="px-4 py-2 text-white rounded-lg hover:bg-violet-700 transition bg-violet-500"
+                  onClick={handleImportButtonClick}
+                >
+                  Import Vendors
+                </button>
 
+                <button
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                  onClick={handleExportVendors}
+                >
+                  Export Vendors
+                </button>
 
-      <div className="bg-white rounded-lg shadow p-4">
-        <h2 className="text-2xl font-bold mb-4 text-gray-900 text-center">Vendor List</h2>
-
-        {currentEvent.vendors.length === 0 ? (
-          <div className="text-gray-500 italic">No vendors added yet.</div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-3 gap-6">
-            {currentEvent.vendors.map((vendor) => (
-              <VendorCards
-                key={vendor.id}
-                vendor={vendor}
-                onDelete={handleDeleteVendor}
-                onUpdate={handleUpdateVendor}
-              />
-            ))}
+                {/* Hidden file input */}
+                <input
+                  type="file"
+                  accept="application/json"
+                  ref={fileInputRef}
+                  onChange={handleImportVendors}
+                  className="hidden"
+                />
+              </div>
+            </div>
           </div>
-        )}
-      </div>
-
+          <VendorList onCardClick={handleVendorCardClick} />
+        </>
+      )}
     </div>
   );
 };
