@@ -14,7 +14,6 @@ import photographersImg from '../images/categories/photographers.jpg';
 import planningDecorImg from '../images/categories/planning-decor.jpg';
 import preWeddingShootImg from '../images/categories/pre-wedding-shoot.jpg';
 import venueImg from '../images/categories/venues.jpg';
-import virtualPlanningImg from '../images/categories/virtual-planning.jpg';
 
 const weddingCategories: VendorCategory[] = [
     {
@@ -42,14 +41,8 @@ const weddingCategories: VendorCategory[] = [
         imageUrl: planningDecorImg,
     },
     {
-        id: 'virtual-planning',
-        name: 'Virtual Planning',
-        subcategories: ['Virtual planning'],
-        imageUrl: virtualPlanningImg,
-    },
-    {
-        id: 'mehndi',
-        name: 'Mehndi',
+        id: 'mehendi',
+        name: 'Mehendi',
         subcategories: ['Mehendi Artist'],
         imageUrl: mehndiImg,
     },
