@@ -52,6 +52,13 @@ export interface Guest {
   notes?: string;
 }
 
+export interface VendorCategory {
+    id: string;
+    name: string;
+    subcategories: string[];
+    imageUrl: string;
+}
+
 export interface Vendor {
   id: string;
   name: string;
@@ -62,6 +69,9 @@ export interface Vendor {
   services: string[];
   contracts: Contract[];
   totalCost: number;
+  costPer: string; // e.g., 'per day', 'per service'
+  location: string;
+  imageUrl: string;
 }
 
 export interface Contract {
