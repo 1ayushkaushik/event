@@ -1,8 +1,6 @@
-import { useState } from 'react';
-import { Calendar, MapPin, Plus, Zap, Brain, FileText, QrCode, Share2 } from 'lucide-react';
+import React from 'react';
 import { useEventStore } from '../../store/eventStore';
-import { CreateEventModal } from '../Modals/CreateEventModal';
-
+import { Calendar, MapPin, Plus, Zap, Brain, FileText, QrCode, Share2 } from 'lucide-react';
 
 const EventCard = ({ event }: any) => (
   <div
@@ -49,15 +47,10 @@ const EventCard = ({ event }: any) => (
   </div>
 );
 
-
-
-
 const EventOverviewCards: React.FC = () => {
   const { events } = useEventStore();
-  const [showModal, setShowModal] = useState(false);
-
+  // Remove duplicate events by id
   const uniqueEvents = Array.from(new Map(events.map(e => [e.id, e])).values());
-
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
@@ -66,20 +59,44 @@ const EventOverviewCards: React.FC = () => {
           <p className="text-gray-600 mt-1">Manage all your events from one place</p>
         </div>
         <button
-          onClick={() => setShowModal(true)}
           className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg transition-all flex items-center gap-2"
         >
           <Plus className="w-5 h-5" />
           Create Event
         </button>
       </div>
-
-      <CreateEventModal isOpen={showModal} onClose={() => setShowModal(false)} />
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {uniqueEvents.map((event) => (
+        {uniqueEvents.map((event: any) => (
           <EventCard key={event.id} event={event} />
         ))}
+      </div>
+      <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+          <Zap className="w-5 h-5 text-yellow-500" />
+          Quick Actions
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <button className="p-4 text-center border border-gray-200 rounded-lg hover:bg-gray-50 transition-all">
+            <Brain className="w-8 h-8 mx-auto mb-2 text-purple-600" />
+            <div className="font-medium">AI Assistant</div>
+            <div className="text-xs text-gray-500">Get suggestions</div>
+          </button>
+          <button className="p-4 text-center border border-gray-200 rounded-lg hover:bg-gray-50 transition-all">
+            <FileText className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+            <div className="font-medium">Templates</div>
+            <div className="text-xs text-gray-500">Start quickly</div>
+          </button>
+          <button className="p-4 text-center border border-gray-200 rounded-lg hover:bg-gray-50 transition-all">
+            <QrCode className="w-8 h-8 mx-auto mb-2 text-green-600" />
+            <div className="font-medium">Check-in</div>
+            <div className="text-xs text-gray-500">Event day</div>
+          </button>
+          <button className="p-4 text-center border border-gray-200 rounded-lg hover:bg-gray-50 transition-all">
+            <Share2 className="w-8 h-8 mx-auto mb-2 text-pink-600" />
+            <div className="font-medium">Share</div>
+            <div className="text-xs text-gray-500">Collaborate</div>
+          </button>
+        </div>
       </div>
     </div>
   );
