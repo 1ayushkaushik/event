@@ -4,7 +4,8 @@ import { Sparkles, Trophy, CheckCircle, Pencil } from 'lucide-react';
 
 const TimelineView: React.FC = () => {
   // Access currentEvent from Zustand store
-  const { currentEvent, updateTimelineItem } = useEventStore();
+  const { currentEvent, addTimelineItem, updateTimelineItem } = useEventStore();
+
   
   // Check if currentEvent exists
   if (!currentEvent) {
@@ -19,6 +20,44 @@ const TimelineView: React.FC = () => {
   const completedItems = event.timeline?.filter((item: any) => item.status === 'completed').length || 0;
   const progress = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
   const allDone = totalItems > 0 && completedItems === totalItems;
+
+  const [newItem, setNewItem] = useState({
+  title: '',
+  description: '',
+  location: '',
+  startTime: '',
+  endTime: '',
+  });
+
+
+  const handleNewItemChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  setNewItem({ ...newItem, [e.target.name]: e.target.value });
+  };
+
+  const handleAddTimelineItem = () => {
+  if (!newItem.title || !newItem.startTime) return;
+
+  const id = `${Date.now()}-${Math.random()}`; // Basic unique ID
+  addTimelineItem(event.id, {
+    id,
+    title: newItem.title,
+    description: newItem.description,
+    location: newItem.location,
+    startTime: new Date(newItem.startTime),
+    endTime: newItem.endTime ? new Date(newItem.endTime) : undefined,
+    status: 'pending',
+  });
+
+  // Clear form
+  setNewItem({
+    title: '',
+    description: '',
+    location: '',
+    startTime: '',
+    endTime: '',
+  });
+  };
+
 
   const handleStatusChange = (itemId: string, status: 'pending' | 'completed') => {
     updateTimelineItem(event.id, itemId, { status });
@@ -80,6 +119,57 @@ const TimelineView: React.FC = () => {
       </div>
       <div className="bg-white rounded-xl shadow border border-gray-200 p-6 mb-8">
         <p className="text-gray-600 mb-4">{event.location} | {event.startDate ? new Date(event.startDate).toLocaleDateString() : ''}</p>
+        <div className="bg-white rounded-xl shadow border border-gray-200 p-6 mb-8">
+  <h4 className="text-lg font-semibold mb-4 text-blue-700">Add Timeline Item</h4>
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <input
+      type="text"
+      name="title"
+      placeholder="Title"
+      value={newItem.title}
+      onChange={handleNewItemChange}
+      className="border px-3 py-2 rounded w-full"
+    />
+    <input
+      type="text"
+      name="location"
+      placeholder="Location"
+      value={newItem.location}
+      onChange={handleNewItemChange}
+      className="border px-3 py-2 rounded w-full"
+    />
+    <input
+      type="datetime-local"
+      name="startTime"
+      placeholder="Start Time"
+      value={newItem.startTime}
+      onChange={handleNewItemChange}
+      className="border px-3 py-2 rounded w-full"
+    />
+    <input
+      type="datetime-local"
+      name="endTime"
+      placeholder="End Time"
+      value={newItem.endTime}
+      onChange={handleNewItemChange}
+      className="border px-3 py-2 rounded w-full"
+    />
+    <textarea
+      name="description"
+      placeholder="Description"
+      value={newItem.description}
+      onChange={handleNewItemChange}
+      className="border px-3 py-2 rounded w-full col-span-full"
+    />
+  </div>
+  <button
+    onClick={handleAddTimelineItem}
+    className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow"
+  >
+    Add Item
+  </button>
+</div>
+
         {event.timeline && event.timeline.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm text-left">
