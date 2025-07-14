@@ -167,19 +167,10 @@ function App() {
     return Array.from(map.values());
   }, [events]);
 
-  useEffect(() => {
-    // Only add sample events if there are no events in the store
-    if (events.length === 0) {
-      sampleEvents.forEach(event => addEvent(event));
-      setCurrentEvent(sampleEvents[0]);
-    }
-  }, []); // Only run once on mount
+  //removed sample event insertion
 
   const renderMainContent = () => {
-    if (!currentEvent) {
-      // Show dashboard if no event is selected
-      return <Dashboard />;
-    }
+    //dashboard is never shown
 
     switch (selectedView) {
       case 'overview':
