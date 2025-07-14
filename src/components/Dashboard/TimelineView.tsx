@@ -3,14 +3,17 @@ import { useEventStore } from '../../store/eventStore';
 import { Sparkles, Trophy, CheckCircle, Pencil } from 'lucide-react';
 
 const TimelineView: React.FC = () => {
-  const { events, updateTimelineItem } = useEventStore();
-  const event = events[0];
+  // Access currentEvent from Zustand store
+  const { currentEvent, updateTimelineItem } = useEventStore();
+  
+  // Check if currentEvent exists
+  if (!currentEvent) {
+    return <div className="p-6 text-gray-500">No event selected.</div>;
+  }
+
+  const event = currentEvent;
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<any>({});
-
-  if (!event) {
-    return <div className="p-6 text-gray-500">No event found.</div>;
-  }
 
   const totalItems = event.timeline?.length || 0;
   const completedItems = event.timeline?.filter((item: any) => item.status === 'completed').length || 0;
