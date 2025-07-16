@@ -4,7 +4,7 @@ import { Event, Task, Guest, Vendor, TimelineItem } from '../types';
 interface EventStore {
   events: Event[];
   currentEvent: Event | null;
-  selectedView: 'overview' | 'timeline' | 'tasks' | 'guests' | 'vendors' | 'budget' | 'assets';
+  selectedView: 'overview' | 'detailed' | 'timeline' | 'tasks' | 'guests' | 'vendors' | 'budget' | 'assets';
   
   // Actions
   setCurrentEvent: (event: Event | null) => void;

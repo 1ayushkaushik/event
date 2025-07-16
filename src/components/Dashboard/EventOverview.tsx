@@ -16,6 +16,7 @@ import { format } from 'date-fns';
 export const EventOverview: React.FC = () => {
   const { currentEvent } = useEventStore();
 
+  // Fallback for when no event is selected
   if (!currentEvent) {
     return (
       <div className="p-8 text-center">
@@ -26,14 +27,25 @@ export const EventOverview: React.FC = () => {
     );
   }
 
-  const completedTasks = currentEvent.tasks.filter(task => task.status === 'completed').length;
-  const totalTasks = currentEvent.tasks.length;
+  // Fallbacks for individual properties of currentEvent
+  const title = currentEvent.title || "Untitled Event";
+  const description = currentEvent.description || "No description available.";
+  const startDate = currentEvent.startDate ? new Date(currentEvent.startDate) : new Date();
+  const location = currentEvent.location || "No location specified.";
+  const status = currentEvent.status || "unknown";
+
+  // Task and guest data with null checks
+  const tasks = currentEvent.tasks || [];
+  const completedTasks = tasks.filter(task => task.status === 'completed').length;
+  const totalTasks = tasks.length;
   const taskProgress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
-  const confirmedGuests = currentEvent.guests.filter(guest => guest.rsvpStatus === 'accepted').length;
-  const totalGuests = currentEvent.guests.length;
+  const guests = currentEvent.guests || [];
+  const confirmedGuests = guests.filter(guest => guest.rsvpStatus === 'accepted').length;
+  const totalGuests = guests.length;
 
-  const budgetUsed = (currentEvent.budget.spent / currentEvent.budget.total) * 100;
+  const budget = currentEvent.budget || { spent: 0, total: 0 };
+  const budgetUsed = (budget.spent / budget.total) * 100 || 0;
 
   const stats = [
     {
@@ -56,7 +68,7 @@ export const EventOverview: React.FC = () => {
     },
     {
       label: 'Budget Used',
-      value: `$${currentEvent.budget.spent.toLocaleString()}`,
+      value: `$${budget.spent.toLocaleString()}`,
       percentage: budgetUsed,
       icon: DollarSign,
       color: 'bg-purple-500',
@@ -65,7 +77,7 @@ export const EventOverview: React.FC = () => {
     },
     {
       label: 'Vendors Booked',
-      value: `${currentEvent.vendors.length}`,
+      value: `${(currentEvent.vendors || []).length}`,
       percentage: 85, // Mock percentage
       icon: TrendingUp,
       color: 'bg-orange-500',
@@ -74,7 +86,7 @@ export const EventOverview: React.FC = () => {
     }
   ];
 
-  const upcomingTasks = currentEvent.tasks
+  const upcomingTasks = tasks
     .filter(task => task.status !== 'completed')
     .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
     .slice(0, 5);
@@ -89,20 +101,20 @@ export const EventOverview: React.FC = () => {
       >
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-3xl font-bold mb-2">{currentEvent.title}</h1>
-            <p className="text-purple-100 mb-4">{currentEvent.description}</p>
+            <h1 className="text-3xl font-bold mb-2">{title}</h1>
+            <p className="text-purple-100 mb-4">{description}</p>
             <div className="flex items-center space-x-6 text-sm">
               <div className="flex items-center space-x-2">
                 <Calendar className="w-4 h-4" />
-                <span>{format(new Date(currentEvent.startDate), 'MMM dd, yyyy')}</span>
+                <span>{format(startDate, 'MMM dd, yyyy')}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <MapPin className="w-4 h-4" />
-                <span>{currentEvent.location}</span>
+                <span>{location}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Clock className="w-4 h-4" />
-                <span className="capitalize">{currentEvent.status}</span>
+                <span className="capitalize">{status}</span>
               </div>
             </div>
           </div>
@@ -110,7 +122,7 @@ export const EventOverview: React.FC = () => {
             <div className="bg-white/20 rounded-lg px-4 py-2">
               <p className="text-sm text-purple-100">Days Until Event</p>
               <p className="text-2xl font-bold">
-                {Math.ceil((new Date(currentEvent.startDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}
+                {Math.ceil((startDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}
               </p>
             </div>
           </div>
@@ -211,7 +223,7 @@ export const EventOverview: React.FC = () => {
             <DollarSign className="w-5 h-5 text-gray-400" />
           </div>
           <div className="space-y-4">
-            {currentEvent.budget.categories.map((category) => (
+            {(currentEvent.budget.categories || []).map((category) => (
               <div key={category.id} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-gray-900">{category.name}</span>
@@ -235,7 +247,7 @@ export const EventOverview: React.FC = () => {
             <div className="flex items-center justify-between">
               <span className="font-semibold text-gray-900">Total Budget</span>
               <span className="font-semibold text-gray-900">
-                ${currentEvent.budget.spent.toLocaleString()} / ${currentEvent.budget.total.toLocaleString()}
+                ${budget.spent.toLocaleString()} / ${budget.total.toLocaleString()}
               </span>
             </div>
           </div>
