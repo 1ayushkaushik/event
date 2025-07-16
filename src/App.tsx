@@ -154,9 +154,98 @@ const sampleEvents: Event[] = [
   }
 ];
 
+const indianWeddingEvent: Event = {
+  id: '13b7d1a7-2c74-44e7-8f7b-e7f6aa899790',
+  title: 'Indian Wedding Timeline',
+  type: 'personal',
+  description: 'A Beautiful Journey of Sacred Traditions',
+  startDate: new Date('2025-07-17T00:00:00Z'),
+  endDate: new Date('2025-12-16T02:00:00Z'),
+  location: 'India',
+  status: 'planning',
+  budget: {
+    total: 0,
+    categories: [],
+    spent: 0,
+    remaining: 0
+  },
+  timeline: [
+    {
+      id: '91e19949-2c74-43b3-bace-cdec2b2804a5',
+      title: 'Engagement',
+      description: 'Exchange of rings and formal commitment',
+      startTime: new Date('2025-07-17T00:00:00Z'),
+      endTime: new Date('2025-07-17T03:00:00Z'),
+      status: 'pending'
+    },
+    {
+      id: '8fbb47b8-fc2e-4979-bb99-7b5262bd089f',
+      title: 'Mehendi',
+      description: 'Beautification and celebration with female relatives',
+      startTime: new Date('2025-12-12T00:00:00Z'),
+      endTime: new Date('2025-12-12T05:00:00Z'),
+      status: 'pending'
+    },
+    {
+      id: '5959298e-361d-4989-9696-930713891ed5',
+      title: 'Haldi',
+      description: 'Cleansing and blessing for good luck',
+      startTime: new Date('2025-12-13T00:00:00Z'),
+      endTime: new Date('2025-12-13T03:00:00Z'),
+      status: 'pending'
+    },
+    {
+      id: 'e73a28b1-bbe2-40ec-8087-a7cbe8d97fc5',
+      title: 'Sangam',
+      description: 'Entertainment and celebration',
+      startTime: new Date('2025-12-13T12:00:00Z'),
+      endTime: new Date('2025-12-13T16:00:00Z'),
+      status: 'pending'
+    },
+    {
+      id: '76b6f69e-6bf5-4a94-b525-51e03cddcdcf',
+      title: 'Wedding',
+      description: 'Sacred marriage ceremony',
+      startTime: new Date('2025-12-14T00:00:00Z'),
+      endTime: new Date('2025-12-14T08:00:00Z'),
+      status: 'pending'
+    },
+    {
+      id: '99185ebb-98a3-4e26-93e2-439a22bb439d',
+      title: 'Reception',
+      description: 'Celebration and introduction to extended network',
+      startTime: new Date('2025-12-15T00:00:00Z'),
+      endTime: new Date('2025-12-15T06:00:00Z'),
+      status: 'pending'
+    },
+    {
+      id: 'e094f766-6125-4911-9383-b46e47b5e8cc',
+      title: 'Griha Pravesh',
+      description: 'Welcome bride to her new home',
+      startTime: new Date('2025-12-16T00:00:00Z'),
+      endTime: new Date('2025-12-16T02:00:00Z'),
+      status: 'pending'
+    }
+  ],
+  tasks: [],
+  guests: [],
+  vendors: [],
+  assets: [],
+  createdAt: new Date('2025-07-16T21:39:15.260Z'),
+  updatedAt: new Date('2025-07-16T21:39:15.260Z')
+};
+
+
 function App() {
   const { events, addEvent, setCurrentEvent, currentEvent, selectedView } = useEventStore();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  useEffect(() => {
+  const alreadyExists = events.some(event => event.id === indianWeddingEvent.id);
+  if (!alreadyExists) {
+    addEvent(indianWeddingEvent);
+  }
+}, [events, addEvent]);
+
 
   // Deduplicate events by id before rendering
   const uniqueEvents = React.useMemo(() => {
