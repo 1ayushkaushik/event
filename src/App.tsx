@@ -175,6 +175,8 @@ function App() {
     switch (selectedView) {
       case 'overview':
         return <EventOverviewCards />;
+      case 'detailed':
+        return <EventOverview />;
       case 'timeline':
         return <TimelineView />;
       case 'tasks':

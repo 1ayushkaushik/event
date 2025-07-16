@@ -7,17 +7,19 @@ import { CreateEventModal } from '../Modals/CreateEventModal';
 const EventCard = ({ event }: any) => {
   // Get the setter function from Zustand to update the currentEvent
   const setCurrentEvent = useEventStore((state) => state.setCurrentEvent);
+  const setSelectedView = useEventStore((state) => state.setSelectedView); //selected view handlign added
 
   // Define the click handler
   const handleClick = () => {
     // Set the clicked event as the currentEvent in Zustand store
     setCurrentEvent(event);
+    setSelectedView('detailed');         
   };
 
   return (
     <div
       className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all cursor-pointer"
-      onClick={handleClick} // When clicked, set the event as currentEvent
+      onClick={handleClick} // When clicked, set the event as currentEvent and now changes view as well :))
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
