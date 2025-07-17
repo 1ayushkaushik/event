@@ -13,6 +13,7 @@ import AssetView from './components/Dashboard/AssetView';
 import GuestView from './components/Dashboard/GuestView';
 import TaskView from './components/Dashboard/TaskView';
 import VendorView from './components/Dashboard/VendorView';
+import BudgetView from './components/Dashboard/BudgetView';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 
 // Sample data for demonstration
@@ -194,7 +195,7 @@ function App() {
       case 'vendors':
         return <VendorView />;
       case 'budget':
-        return <div className="p-6">Budget tracking view coming soon...</div>;
+        return <BudgetView />;
       case 'assets':
         return <AssetView />;
       default:
