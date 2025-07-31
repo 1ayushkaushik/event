@@ -9,7 +9,8 @@ import {
   FolderOpen,
   BarChart3,
   Plus,
-  Settings
+  Settings,
+  MailIcon
 } from 'lucide-react';
 import { useEventStore } from '../../store/eventStore';
 
@@ -21,6 +22,7 @@ const navigationItems = [
   { id: 'vendors', label: 'Vendors', icon: Building2 },
   { id: 'budget', label: 'Budget', icon: DollarSign },
   { id: 'assets', label: 'Assets', icon: FolderOpen },
+  { id: 'einvites', label: 'E-Invites', icon: MailIcon },
 ];
 
 export const Sidebar: React.FC<{ onToggleSidebar?: () => void }> = ({ onToggleSidebar }) => {

@@ -15,6 +15,7 @@ import TaskView from './components/Dashboard/TaskView';
 import VendorView from './components/Dashboard/VendorView';
 import BudgetView from './components/Dashboard/BudgetView';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
+import EInviteView from './components/Dashboard/EInviteView';
 
 // Sample data for demonstration
 const sampleEvents: Event[] = [
@@ -198,6 +199,8 @@ function App() {
         return <BudgetView />;
       case 'assets':
         return <AssetView />;
+      case 'einvites':
+        return <EInviteView />;
       default:
         return <EventOverviewCards />;
     }
